@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Đăng nhập quản trị – Máy in huế</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🖨️</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    [hidden] { display: none !important; }
+    .login-card { max-width: 420px; margin: 48px auto; background: var(--trang); border: 1px solid var(--vien); border-radius: var(--bo); padding: 28px; }
+    .login-card h1 { font-size: 1.5rem; font-weight: 800; }
+    .login-card > p { color: var(--phu); margin-top: 6px; }
+    #login { display: grid; gap: 14px; margin-top: 20px; }
+    #login label { display: grid; gap: 4px; font-weight: 600; font-size: 0.9rem; }
+    #login input {
+      width: 100%; font: inherit; padding: 10px 12px; color: var(--chu);
+      background: var(--trang); border: 1px solid #c9d6e6; border-radius: 8px;
+    }
+    #login input:focus { outline: 2px solid var(--xanh); outline-offset: 0; border-color: var(--xanh); }
+    #login button { cursor: pointer; }
+    #login button:disabled { opacity: 0.6; cursor: wait; }
+    #msg { min-height: 1.4em; font-weight: 600; }
+    #msg.err { color: var(--do); }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="wrap header-in">
+      <a class="logo" href="index.html">
+        <span class="logo-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="M7 8V3h10v5M7 17H4a1 1 0 0 1-1-1v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a1 1 0 0 1-1 1h-3M7 14h10v7H7z"/></svg>
+        </span>
+        <span class="logo-text">Máy in huế<small>Trang quản trị</small></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <section class="login-card" aria-labelledby="title">
+      <h1 id="title">Đăng nhập quản trị</h1>
+      <p>Đăng nhập để mở bảng Google Sheets quản lý máy in. Bảng mở ở tab mới, trang này vẫn giữ nguyên.</p>
+      <form id="login">
+        <label>Tài khoản<input id="user" autocomplete="username" autocapitalize="none" required></label>
+        <label>Mật khẩu<input id="pass" type="password" autocomplete="current-password" required></label>
+        <button class="btn btn-call" id="submit" type="submit">Đăng nhập</button>
+        <p id="msg" role="alert"></p>
+        <a class="btn btn-zalo" id="open" target="_blank" rel="noopener" hidden>Mở bảng Google Sheets</a>
+      </form>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const say = (text, isError = false) => { $("msg").textContent = text; $("msg").className = isError ? "err" : ""; };
+
+    $("login").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      $("submit").disabled = true;
+      $("open").hidden = true;
+      say("Đang kiểm tra...");
+      const url = await moKhoaAdmin($("user").value, $("pass").value);
+      $("submit").disabled = false;
+      if (!url) return say("Sai tài khoản hoặc mật khẩu", true);
+
+      $("open").href = url; // nút dự phòng nếu trình duyệt chặn tab mới
+      $("open").hidden = false;
+      const tab = window.open(url, "_blank");
+      if (tab) {
+        tab.opener = null;
+        say("Đã mở bảng Google Sheets ở tab mới.");
+      } else {
+        say("Trình duyệt chặn tab mới. Bấm nút bên dưới để mở bảng.");
+      }
+    });
+  </script>
+</body>
+</html>
